@@ -85,7 +85,7 @@ pub enum TokenKind {
     #[token("==")]
     Equals,
 
-    #[regex(r"[ \t\r\n\f]+")]
+    #[regex(r"[ \t\f]+")]
     Whitespace,
 
     #[error]
