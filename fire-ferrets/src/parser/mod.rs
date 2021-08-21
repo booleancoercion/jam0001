@@ -27,6 +27,14 @@ impl fmt::Display for Expr {
     }
 }
 
+pub enum Stmt {
+    Set(String, Expr),
+    Push(Expr),
+    Pop,
+    Check,
+    Print(Expr),
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Lit {
     Int(i64),

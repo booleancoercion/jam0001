@@ -1,5 +1,3 @@
-use logos::internal::CallbackResult;
-
 use super::{Expr, Lit, Parser};
 
 use crate::lexer::TokenKind;
@@ -39,7 +37,7 @@ impl Operator for TokenKind {
 impl Parser<'_> {
     fn parse_expr(&mut self, binding_power: u8) -> ExprResult {
         let mut lhs = match self.peek() {
-            TokenKind::Ident => self.parse_ident()?,
+            TokenKind::Ident | TokenKind::Pop => self.parse_ident()?,
             lit @ TokenKind::IntLit
             | lit @ TokenKind::StringLit
             | lit @ TokenKind::True
@@ -124,11 +122,11 @@ impl Parser<'_> {
     }
 
     fn parse_prefix_op(&mut self, op: TokenKind) -> ExprResult {
-        let token = self.next().unwrap();
+        self.consume(op)?;
         // unwrapped because it cannot fail, `op` is guaranteed to be either `not` or `-`
         let ((), right_bp) = op.prefix_binding_power().unwrap();
 
-        let expr = Box::new(self.expr()?);
+        let expr = Box::new(self.parse_expr(right_bp)?);
         Ok(Expr::UnaryOp(op, expr))
     }
 
