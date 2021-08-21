@@ -1,5 +1,5 @@
 /*
-    The two enums solution is probably far from ideal but the EOF variant is needed for parsing
+    The two enums solution is probably far from ideal but the Eof variant is needed for parsing
 */
 
 use std::fmt::Display;
@@ -91,17 +91,15 @@ pub enum LogosToken {
     #[token("==")]
     Equals,
 
-    #[regex(r"[ \t\f]+")]
-    Whitespace,
-
     #[error]
+    #[regex(r"[ \t\f]+", logos::skip)]
     Error,
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 /// This is necessary because logos doesn't provide an `#[end]` attribute anymore,
 /// so we'll have to manually map `LogosToken` to `TokenKind`,
-/// and when we receive `None` from the lexer, turn it into the `EOF` variant
+/// and when we receive `None` from the lexer, turn it into the `Eof` variant
 pub enum TokenKind {
     Check,
     CondCopy,
@@ -130,9 +128,8 @@ pub enum TokenKind {
     GreaterEq,
     NotEq,
     Equals,
-    Whitespace,
     Error,
-    EOF,
+    Eof,
 }
 
 impl Display for TokenKind {
@@ -168,9 +165,8 @@ impl Display for TokenKind {
                 Self::GreaterEq => ">=",
                 Self::NotEq => "!=",
                 Self::Equals => "==",
-                Self::Whitespace => "whitespace",
                 Self::Error => "error",
-                Self::EOF => "EOF",
+                Self::Eof => "EOF",
             }
         )
     }
@@ -206,7 +202,6 @@ impl From<LogosToken> for TokenKind {
             LogosToken::GreaterEq => Self::GreaterEq,
             LogosToken::NotEq => Self::NotEq,
             LogosToken::Equals => Self::Equals,
-            LogosToken::Whitespace => Self::Whitespace,
             LogosToken::Error => Self::Error,
         }
     }

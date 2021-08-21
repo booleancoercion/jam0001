@@ -34,7 +34,7 @@ impl<'input> Iterator for Lexer<'input> {
             None => {
                 self.eof = true;
                 Some(Token {
-                    kind: TokenKind::EOF,
+                    kind: TokenKind::Eof,
                     span: (0..0).into(),
                 })
             }
@@ -47,9 +47,7 @@ impl<'input> Iterator for Lexer<'input> {
 fn test_lexer() {
     let test = "set variable 123
 print variable * variable";
-    let tokens = Lexer::new(test)
-        .filter(|t| t.kind != TokenKind::Whitespace)
-        .collect::<Vec<_>>();
+    let tokens = Lexer::new(test).collect::<Vec<_>>();
     assert_eq!(
         tokens,
         vec![
@@ -110,7 +108,7 @@ print variable * variable";
                 }
             },
             Token {
-                kind: TokenKind::EOF,
+                kind: TokenKind::Eof,
                 span: Span {
                     start: 0_usize,
                     end: 0_usize
