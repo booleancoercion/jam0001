@@ -1,3 +1,5 @@
+use std::vec;
+
 use logos::Logos;
 
 #[derive(Logos, Clone, Debug, PartialEq)]
@@ -90,4 +92,41 @@ pub enum TokenKind {
 
     #[error]
     Error,
+}
+
+/*
+*/
+
+#[test]
+fn test_lexer() {
+    let test = r#"set i 0
+
+- set i i+ 1
+-cond-copy"#;
+    let expected = vec![
+        TokenKind::Set,
+        TokenKind::Whitespace,
+        TokenKind::Ident,
+        TokenKind::Whitespace,
+        TokenKind::IntLit,
+        TokenKind::Newline,
+        TokenKind::Newline,
+        TokenKind::Minus,
+        TokenKind::Whitespace,
+        TokenKind::Set,
+        TokenKind::Whitespace,
+        TokenKind::Ident,
+        TokenKind::Whitespace,
+        TokenKind::Ident,
+        TokenKind::Plus,
+        TokenKind::Whitespace,
+        TokenKind::IntLit,
+        TokenKind::Newline,
+        TokenKind::Minus,
+        TokenKind::Whitespace,
+        TokenKind::CondCopy,
+    ];
+
+    let tokens = TokenKind::lexer(&test).collect::<Vec<_>>();
+    assert_eq!(tokens, expected);
 }
