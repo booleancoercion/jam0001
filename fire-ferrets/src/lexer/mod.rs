@@ -1,132 +1,121 @@
-use std::vec;
+mod token_kind;
+mod types;
+
+pub use token_kind::*;
+pub use types::*;
 
 use logos::Logos;
 
-#[derive(Logos, Clone, Debug, PartialEq)]
-/// An enum of all possible tokens
-pub enum TokenKind {
-    #[token("check")]
-    Check,
-
-    #[token("cond_copy")]
-    CondCopy,
-
-    #[token("get")]
-    Get,
-
-    #[token("pop")]
-    Pop,
-
-    #[token("print")]
-    Print,
-
-    #[token("push")]
-    Push,
-
-    #[token("set")]
-    Set,
-
-    #[regex(r#"([A-Za-z]|_)([A-Za-z]|_|\d)*"#)]
-    Ident,
-
-    #[regex("[0-9]+")]
-    IntLit,
-
-    #[regex(r#""((\\"|\\\\)|[^\\"])*""#)]
-    StringLit,
-
-    #[token("true")]
-    True,
-
-    #[token("false")]
-    False,
-
-    #[token("and")]
-    And,
-
-    #[token("not")]
-    Not,
-
-    #[token("or")]
-    Or,
-
-    #[token("\n")]
-    #[token("\r\n")]
-    Newline,
-
-    #[token("(")]
-    LeftParen,
-
-    #[token(")")]
-    RightParen,
-
-    #[token("+")]
-    Plus,
-
-    #[token("-")]
-    Minus,
-
-    #[token("*")]
-    Multiply,
-
-    #[token("/")]
-    Divide,
-
-    #[token("<")]
-    Less,
-
-    #[token(">")]
-    Greater,
-
-    #[token(">=")]
-    GreaterEq,
-
-    #[token("!=")]
-    NotEq,
-
-    #[token("==")]
-    Equals,
-
-    #[regex(r"[ \t\f]+")]
-    Whitespace,
-
-    #[error]
-    Error,
+pub struct Lexer<'input> {
+    generated: logos::SpannedIter<'input, LogosToken>,
+    eof: bool,
 }
 
-/*
-*/
+impl<'input> Lexer<'input> {
+    pub fn new(input: &'input str) -> Self {
+        Self {
+            generated: LogosToken::lexer(input).spanned(),
+            eof: false,
+        }
+    }
+}
+
+impl<'input> Iterator for Lexer<'input> {
+    type Item = Token;
+
+    /// Wrapper around `logos::SpannedIter::next` that transforms the span + token kind into our custom `Token` object
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.generated.next() {
+            Some((token, span)) => Some(Token {
+                kind: TokenKind::from(token),
+                span: span.into(),
+            }),
+            None if self.eof => None,
+            None => {
+                self.eof = true;
+                Some(Token {
+                    kind: TokenKind::EOF,
+                    span: (0..0).into(),
+                })
+            }
+        }
+    }
+}
 
 #[test]
+/// ah yes very exhaustive
 fn test_lexer() {
-    let test = r#"set i 0
-
-- set i i+ 1
--cond-copy"#;
-    let expected = vec![
-        TokenKind::Set,
-        TokenKind::Whitespace,
-        TokenKind::Ident,
-        TokenKind::Whitespace,
-        TokenKind::IntLit,
-        TokenKind::Newline,
-        TokenKind::Newline,
-        TokenKind::Minus,
-        TokenKind::Whitespace,
-        TokenKind::Set,
-        TokenKind::Whitespace,
-        TokenKind::Ident,
-        TokenKind::Whitespace,
-        TokenKind::Ident,
-        TokenKind::Plus,
-        TokenKind::Whitespace,
-        TokenKind::IntLit,
-        TokenKind::Newline,
-        TokenKind::Minus,
-        TokenKind::Whitespace,
-        TokenKind::CondCopy,
-    ];
-
-    let tokens = TokenKind::lexer(&test).collect::<Vec<_>>();
-    assert_eq!(tokens, expected);
+    let test = "set variable 123
+print variable * variable";
+    let tokens = Lexer::new(test)
+        .filter(|t| t.kind != TokenKind::Whitespace)
+        .collect::<Vec<_>>();
+    assert_eq!(
+        tokens,
+        vec![
+            Token {
+                kind: TokenKind::Set,
+                span: Span {
+                    start: 0_usize,
+                    end: 3_usize
+                }
+            },
+            Token {
+                kind: TokenKind::Ident,
+                span: Span {
+                    start: 4_usize,
+                    end: 12_usize
+                }
+            },
+            Token {
+                kind: TokenKind::IntLit,
+                span: Span {
+                    start: 13_usize,
+                    end: 16_usize
+                }
+            },
+            Token {
+                kind: TokenKind::Newline,
+                span: Span {
+                    start: 16_usize,
+                    end: 17_usize
+                }
+            },
+            Token {
+                kind: TokenKind::Print,
+                span: Span {
+                    start: 17_usize,
+                    end: 22_usize
+                }
+            },
+            Token {
+                kind: TokenKind::Ident,
+                span: Span {
+                    start: 23_usize,
+                    end: 31_usize
+                }
+            },
+            Token {
+                kind: TokenKind::Multiply,
+                span: Span {
+                    start: 32_usize,
+                    end: 33_usize
+                }
+            },
+            Token {
+                kind: TokenKind::Ident,
+                span: Span {
+                    start: 34_usize,
+                    end: 42_usize
+                }
+            },
+            Token {
+                kind: TokenKind::EOF,
+                span: Span {
+                    start: 0_usize,
+                    end: 0_usize
+                }
+            },
+        ]
+    )
 }
