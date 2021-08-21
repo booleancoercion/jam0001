@@ -1,0 +1,58 @@
+program =       { statement, newline } ;
+newline =       "\n" | "\r\n" ;
+
+statement =     stack_op
+                | comment_op
+                | print
+                | set
+                | call
+                ;
+
+stack_op =      push
+                | pop
+                | check
+                ;
+
+push =          "push", expr ;
+pop =           "pop" ;
+check =         "check", expr ;
+
+
+comment_op =    cond_op
+                | uncond_op
+                ;
+
+uncond_op =     comment
+                | uncomment
+                | copy
+                | move
+                ;
+
+cond_op =       [ expr ], "?", uncond_op ;
+
+comment =       "comment", span ;
+uncomment =     "uncomment", span ;
+copy =          "copy", ident, halfspan ;
+move =          "move", ident, halfspan ;
+
+print =         "print", expr ;
+set =           "set", ident, expr ;
+call =          "call", ident ;
+
+
+expr =          ident | lit | unary | binary | parens ;
+unary =         "not", expr ;
+binary =        expr, binary_op, expr ;
+binary_op =     "+" | "-" | "*" | "/"
+                    | "<" | ">" | "<=" | ">="
+                    | "and"     | "or"
+                    | "=="      | "!==" ;
+
+parens =        "(", expr, ")" ;
+
+
+ident =         ( letter | "_" ), { letter | digit | "_" } ;
+lit =           string_lit | num_lit ;
+
+span =          ???;
+halfspan =      ???;
