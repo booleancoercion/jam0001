@@ -2,7 +2,7 @@
     The two enums solution is probably far from ideal but the EOF variant is needed for parsing
 */
 
-use std::{fmt::Display, vec};
+use std::fmt::Display;
 
 use logos::Logos;
 

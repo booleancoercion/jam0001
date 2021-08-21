@@ -15,7 +15,7 @@ impl Token {
     #[inline]
     /// Get the length of the token
     pub fn len(&self) -> usize {
-        self.span.end - self.span.start
+        self.span.len()
     }
 
     /// Get the token's text as a slice of the input string
@@ -48,6 +48,11 @@ impl Span {
             column += 1;
         }
         (line, column)
+    }
+
+    #[inline]
+    pub fn len(&self) -> usize {
+        self.end - self.start
     }
 }
 
