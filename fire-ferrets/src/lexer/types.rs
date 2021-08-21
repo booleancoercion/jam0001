@@ -12,7 +12,6 @@ pub struct Token {
 }
 
 impl Token {
-    #[inline]
     /// Get the length of the token
     pub fn len(&self) -> usize {
         self.span.len()
@@ -33,7 +32,7 @@ pub struct Span {
 impl Span {
     /// Return the line number (0 based) and column number (0 based)
     /// of the token (relative to the input string)
-    pub(crate) fn get_line_and_column(&self, input: &str) -> (usize, usize) {
+    pub fn get_line_and_column(&self, input: &str) -> (usize, usize) {
         let start = self.start as usize;
         let mut line = 0;
         let mut column = 0;
@@ -50,7 +49,6 @@ impl Span {
         (line, column)
     }
 
-    #[inline]
     pub fn len(&self) -> usize {
         self.end - self.start
     }
