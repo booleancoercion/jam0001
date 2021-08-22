@@ -137,27 +137,22 @@ impl Parser<'_> {
         expr
     }
 
-    fn expr(&mut self) -> ExprResult {
+    pub fn expr(&mut self) -> ExprResult {
         self.parse_expr(0)
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::parser::Parser;
+/// ah yes t e s t i n g
+#[test]
+fn expr_repl() {
+    loop {
+        let mut input = String::new();
+        std::io::stdin().read_line(&mut input).unwrap();
 
-    /// ah yes t e s t i n g
-    #[test]
-    fn repl() {
-        loop {
-            let mut input = String::new();
-            std::io::stdin().read_line(&mut input).unwrap();
-
-            let expr = Parser::new(&input).expr();
-            match expr {
-                Ok(e) => println!("{}", e),
-                Err(e) => eprintln!("{}", e),
-            }
+        let expr = Parser::new(&input).expr();
+        match expr {
+            Ok(e) => println!("{}", e),
+            Err(e) => eprintln!("{}", e),
         }
     }
 }

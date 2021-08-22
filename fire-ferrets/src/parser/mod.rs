@@ -1,4 +1,5 @@
 pub mod expr;
+pub mod stmt;
 
 use std::{fmt, iter::Peekable};
 
@@ -30,9 +31,25 @@ impl fmt::Display for Expr {
 pub enum Stmt {
     Set(String, Expr),
     Push(Expr),
+    Check(Expr),
     Pop,
-    Check,
     Print(Expr),
+}
+
+impl fmt::Display for Stmt {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Stmt::Set(ident, expr) => format!("(set {} {})", ident, expr),
+                Stmt::Push(expr) => format!("(push {})", expr),
+                Stmt::Check(expr) => format!("(check {}", expr),
+                Stmt::Pop => "(pop)".to_string(),
+                Stmt::Print(expr) => format!("(print {})", expr),
+            }
+        )
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
