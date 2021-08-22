@@ -36,6 +36,15 @@ pub enum LogosToken {
     #[regex(r#""((\\"|\\\\)|[^\\"])*""#)]
     StringLit,
 
+    #[regex(r#"\[(\+|-|)[0-9]+\]"#)]
+    HalfSpan,
+
+    #[regex(r#"\[(\+|-|)[0-9]+:(\+|-|)[0-9]+\]"#)]
+    FullSpan,
+
+    #[regex(r#"\{[^\}]*\}"#)]
+    Comment,
+
     #[token("true")]
     True,
 
@@ -110,6 +119,9 @@ pub enum TokenKind {
     Ident,
     IntLit,
     StringLit,
+    HalfSpan,
+    FullSpan,
+    Comment,
     True,
     False,
     And,
@@ -147,6 +159,9 @@ impl Display for TokenKind {
                 Self::Ident => "identifier",
                 Self::IntLit => "integer literal",
                 Self::StringLit => "string literal",
+                Self::HalfSpan => "half span",
+                Self::FullSpan => "full span",
+                Self::Comment => "comment",
                 Self::True => "true",
                 Self::False => "false",
                 Self::And => "and",
@@ -184,6 +199,9 @@ impl From<LogosToken> for TokenKind {
             LogosToken::Ident => Self::Ident,
             LogosToken::IntLit => Self::IntLit,
             LogosToken::StringLit => Self::StringLit,
+            LogosToken::HalfSpan => Self::HalfSpan,
+            LogosToken::FullSpan => Self::FullSpan,
+            LogosToken::Comment => Self::Comment,
             LogosToken::True => Self::True,
             LogosToken::False => Self::False,
             LogosToken::And => Self::And,
