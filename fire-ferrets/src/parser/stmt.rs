@@ -9,6 +9,7 @@ impl Parser<'_> {
         match self.peek() {
             TokenKind::Set => self.parse_set(),
             TokenKind::Push => self.parse_push(),
+            TokenKind::Check => self.parse_check(),
             TokenKind::Pop => self.parse_pop(),
             TokenKind::Print => self.parse_print(),
             TokenKind::Eof => Err("Error: Unexpected EOF".to_string()),
@@ -28,7 +29,9 @@ impl Parser<'_> {
 
         if let TokenKind::Ident = ident.kind {
             let text = self.text(ident);
-            Ok(Stmt::Set(text.to_string(), self.expr()?))
+            let expr = self.expr()?;
+            self.consume(TokenKind::Newline)?;
+            Ok(Stmt::Set(text.to_string(), expr))
         } else {
             Err(self.fmt_error(
                 ident.span,
@@ -39,17 +42,29 @@ impl Parser<'_> {
 
     fn parse_push(&mut self) -> StmtResult {
         self.next().unwrap();
-        Ok(Stmt::Push(self.expr()?))
+        let expr = self.expr()?;
+        self.consume(TokenKind::Newline)?;
+        Ok(Stmt::Push(expr))
     }
 
     fn parse_pop(&mut self) -> StmtResult {
         self.next().unwrap();
+        self.consume(TokenKind::Newline)?;
         Ok(Stmt::Pop)
     }
 
     fn parse_print(&mut self) -> StmtResult {
         self.next().unwrap();
-        Ok(Stmt::Print(self.expr()?))
+        let expr = self.expr()?;
+        self.consume(TokenKind::Newline)?;
+        Ok(Stmt::Print(expr))
+    }
+
+    fn parse_check(&mut self) -> StmtResult {
+        self.next().unwrap();
+        let expr = self.expr()?;
+        self.consume(TokenKind::Newline)?;
+        Ok(Stmt::Check(expr))
     }
 }
 

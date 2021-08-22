@@ -70,9 +70,11 @@ impl Parser<'_> {
                 | op @ TokenKind::NotEq
                 | op @ TokenKind::Equals => op,
                 TokenKind::Eof | TokenKind::RightParen | TokenKind::Newline => break,
-                kind => {
+                _ => {
                     let token = self.next().unwrap();
-                    Err(self.fmt_error(token.span, "Expected operator or terminator".to_string()))?
+                    return Err(
+                        self.fmt_error(token.span, "Expected operator or terminator".to_string())
+                    );
                 }
             };
 

@@ -28,6 +28,7 @@ impl fmt::Display for Expr {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
 pub enum Stmt {
     Set(String, Expr),
     Push(Expr),
@@ -91,7 +92,7 @@ impl<'input> Parser<'input> {
 
     /// Get the source text of a given token
     pub fn text(&self, token: Token) -> &'input str {
-        token.text(&self.input)
+        token.text(self.input)
     }
 
     /// Look ahead to the next token without consuming it
@@ -103,7 +104,7 @@ impl<'input> Parser<'input> {
     }
 
     /// Peek ahead to the next token and check if its `TokenKind` is `kind`
-    pub fn at(&mut self, kind: TokenKind) -> bool {
+    pub fn _at(&mut self, kind: TokenKind) -> bool {
         self.peek() == kind
     }
 

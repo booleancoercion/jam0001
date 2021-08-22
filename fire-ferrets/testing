@@ -1,0 +1,4 @@
+set a 437 * 438 / 43782 - 473 + 43789
+print a
+push a + 1
+print a + pop == 86641

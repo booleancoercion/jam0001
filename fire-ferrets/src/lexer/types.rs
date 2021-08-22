@@ -13,7 +13,7 @@ pub struct Token {
 
 impl Token {
     /// Get the length of the token
-    pub fn len(&self) -> usize {
+    pub fn _len(&self) -> usize {
         self.span.len()
     }
 
