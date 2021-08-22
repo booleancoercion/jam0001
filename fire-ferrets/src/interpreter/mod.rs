@@ -121,6 +121,10 @@ impl Interpreter {
         Self { env: Env::new() }
     }
 
+    pub fn eval(&mut self, stmt: &Stmt) {
+        todo!()
+    }
+
     pub fn eval_expr(&self, input: &Expr) -> Option<Value> {
         Some(self.visit_expr(input))
     }

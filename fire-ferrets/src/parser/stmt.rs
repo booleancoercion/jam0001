@@ -9,6 +9,7 @@ impl Parser<'_> {
         match self.peek() {
             TokenKind::Set => self.parse_set(),
             TokenKind::Push => self.parse_push(),
+            TokenKind::Check => self.parse_check(),
             TokenKind::Pop => self.parse_pop(),
             TokenKind::Print => self.parse_print(),
             TokenKind::Eof => Err("Error: Unexpected EOF".to_string()),
@@ -40,6 +41,11 @@ impl Parser<'_> {
     fn parse_push(&mut self) -> StmtResult {
         self.next().unwrap();
         Ok(Stmt::Push(self.expr()?))
+    }
+
+    fn parse_check(&mut self) -> StmtResult {
+        self.next().unwrap();
+        Ok(Stmt::Check(self.expr()?))
     }
 
     fn parse_pop(&mut self) -> StmtResult {
