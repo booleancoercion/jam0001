@@ -1,6 +1,6 @@
 use crate::lexer::TokenKind;
 
-use super::{HalfSpanLit, NumKind, Parser, SpanLit, Stmt};
+use super::{Comment, HalfSpanLit, NumKind, Parser, SpanLit, Stmt};
 
 type StmtResult = Result<Stmt, String>;
 
@@ -158,5 +158,33 @@ impl Parser<'_> {
         let halfspan = self.halfspan()?;
         self.consume(TokenKind::Newline)?;
         Ok(Stmt::Move(ident, halfspan))
+    }
+
+    fn parse_comment(&mut self) -> StmtResult {
+        let token = self.next().unwrap();
+        let text = self.text(token);
+        let text = &text[1..text.len() - 1];
+
+        let mut parser = Parser::new(text);
+        let mut stmts = vec![];
+        loop {
+            match parser.peek() {
+                TokenKind::Newline => continue,
+                TokenKind::Eof => break,
+                _ => {
+                    if let Ok(stmt) = parser.parse_stmt() {
+                        stmts.push(stmt);
+                    } else {
+                        return Ok(Stmt::Comment(Comment::Invalid));
+                    }
+                }
+            }
+        }
+
+        Ok(Stmt::Comment(if stmts.is_empty() {
+            Comment::Empty
+        } else {
+            Comment::Valid(stmts)
+        }))
     }
 }

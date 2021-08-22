@@ -39,6 +39,14 @@ pub enum Stmt {
     Uncomment(String),
     Copy(String, HalfSpanLit),
     Move(String, HalfSpanLit),
+    Comment(Comment),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Comment {
+    Valid(Vec<Stmt>),
+    Invalid,
+    Empty,
 }
 
 impl fmt::Display for Stmt {
@@ -56,6 +64,15 @@ impl fmt::Display for Stmt {
                 Stmt::Uncomment(ident) => format!("(uncomment {})", ident),
                 Stmt::Copy(ident, halfspanlit) => format!("(copy {} {})", ident, halfspanlit),
                 Stmt::Move(ident, halfspanlit) => format!("(move {} {})", ident, halfspanlit),
+                Stmt::Comment(Comment::Valid(stmts)) => {
+                    let mut buf = "[".to_string();
+                    for stmt in stmts {
+                        buf.push_str(&format!("{}, ", stmt));
+                    }
+                    buf.push(']');
+                    format!("(commentlit ({}))", buf)
+                }
+                Stmt::Comment(Comment::Invalid | Comment::Empty) => format!("(commentlit)"),
             }
         )
     }
