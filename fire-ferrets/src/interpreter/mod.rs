@@ -54,10 +54,6 @@ impl PartialEq<Value> for Value {
             }
         }
     }
-
-    fn ne(&self, other: &Self) -> bool {
-        !self.eq(other)
-    }
 }
 
 impl From<Value> for bool {
@@ -106,7 +102,9 @@ impl Env {
     }
 
     pub fn pop(&mut self) -> Result<Value, String> {
-        self.stack.pop().ok_or("The stack is empty".to_string())
+        self.stack
+            .pop()
+            .ok_or_else(|| "The stack is empty".to_string())
     }
 }
 
@@ -114,7 +112,7 @@ pub trait Visitor {
     fn visit_expr(&self, e: &Expr) -> Value;
 }
 
-struct Interpreter {
+pub struct Interpreter {
     env: Env,
 }
 
@@ -207,67 +205,72 @@ impl Visitor for Interpreter {
     }
 }
 
-#[test]
-fn test_integer_literal() {
-    let input = Expr::Literal(Lit::Int(5));
-    let expected = Value::Integer(5);
-    test_expr(input, expected);
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn test_boolean_literal() {
-    let input = Expr::Literal(Lit::Bool(true));
-    let expected = Value::Boolean(true);
-    test_expr(input, expected);
-    let input = Expr::Literal(Lit::Bool(false));
-    let expected = Value::Boolean(false);
-    test_expr(input, expected);
-}
+    #[test]
+    fn test_integer_literal() {
+        let input = Expr::Literal(Lit::Int(5));
+        let expected = Value::Integer(5);
+        test_expr(input, expected);
+    }
 
-#[test]
-fn test_string_literal() {
-    let input = Expr::Literal(Lit::Str("hello".to_string()));
-    let expected = Value::String("hello".to_string());
-    test_expr(input, expected);
-}
+    #[test]
+    fn test_boolean_literal() {
+        let input = Expr::Literal(Lit::Bool(true));
+        let expected = Value::Boolean(true);
+        test_expr(input, expected);
+        let input = Expr::Literal(Lit::Bool(false));
+        let expected = Value::Boolean(false);
+        test_expr(input, expected);
+    }
 
-#[test]
-fn test_binary_op() {
-    let input = Expr::BinaryOp(
-        TokenKind::Plus,
-        Box::new(Expr::Literal(Lit::Int(5))),
-        Box::new(Expr::Literal(Lit::Int(10))),
-    );
-    let expected = Value::Integer(15);
-    test_expr(input, expected);
-}
+    #[test]
+    fn test_string_literal() {
+        let input = Expr::Literal(Lit::Str("hello".to_string()));
+        let expected = Value::String("hello".to_string());
+        test_expr(input, expected);
+    }
 
-#[test]
-fn test_unary_op() {
-    let input = Expr::UnaryOp(TokenKind::Minus, Box::new(Expr::Literal(Lit::Int(5))));
-    let expected = Value::Integer(-5);
-    test_expr(input, expected);
-}
+    #[test]
+    fn test_binary_op() {
+        let input = Expr::BinaryOp(
+            TokenKind::Plus,
+            Box::new(Expr::Literal(Lit::Int(5))),
+            Box::new(Expr::Literal(Lit::Int(10))),
+        );
+        let expected = Value::Integer(15);
+        test_expr(input, expected);
+    }
 
-fn test_expr(input: Expr, expected: Value) {
-    let interpreter = Interpreter::new();
-    let actual = interpreter.eval_expr(&input);
-    assert!(actual.is_some());
-    assert_eq!(actual.unwrap(), expected);
-}
+    #[test]
+    fn test_unary_op() {
+        let input = Expr::UnaryOp(TokenKind::Minus, Box::new(Expr::Literal(Lit::Int(5))));
+        let expected = Value::Integer(-5);
+        test_expr(input, expected);
+    }
 
-#[test]
-fn test_integer_equals() {
-    let expected = Value::Integer(5);
-    let actual = Value::Integer(5);
-    assert_eq!(actual, expected);
-    assert_ne!(actual, Value::Integer(8));
-}
+    fn test_expr(input: Expr, expected: Value) {
+        let interpreter = Interpreter::new();
+        let actual = interpreter.eval_expr(&input);
+        assert!(actual.is_some());
+        assert_eq!(actual.unwrap(), expected);
+    }
 
-#[test]
-fn test_boolean_equals() {
-    let expected = Value::Boolean(true);
-    let actual = Value::Boolean(true);
-    assert_eq!(actual, expected);
-    assert_ne!(actual, Value::Boolean(false));
+    #[test]
+    fn test_integer_equals() {
+        let expected = Value::Integer(5);
+        let actual = Value::Integer(5);
+        assert_eq!(actual, expected);
+        assert_ne!(actual, Value::Integer(8));
+    }
+
+    #[test]
+    fn test_boolean_equals() {
+        let expected = Value::Boolean(true);
+        let actual = Value::Boolean(true);
+        assert_eq!(actual, expected);
+        assert_ne!(actual, Value::Boolean(false));
+    }
 }
