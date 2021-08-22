@@ -45,12 +45,6 @@ pub enum LogosToken {
     #[regex(r#""((\\"|\\\\)|[^\\"])*""#)]
     StringLit,
 
-    #[regex(r#"\[(\+|-|)[0-9]+\]"#)]
-    HalfSpan,
-
-    #[regex(r#"\[(\+|-|)[0-9]+:(\+|-|)[0-9]+\]"#)]
-    FullSpan,
-
     #[regex(r#"\{[^\}]*\}"#)]
     Comment,
 
@@ -75,6 +69,15 @@ pub enum LogosToken {
 
     #[token("?")]
     Question,
+
+    #[token(":")]
+    Colon,
+
+    #[token("[")]
+    LeftBracket,
+
+    #[token("]")]
+    RightBracket,
 
     #[token("(")]
     LeftParen,
@@ -134,8 +137,6 @@ pub enum TokenKind {
     Ident,
     IntLit,
     StringLit,
-    HalfSpan,
-    FullSpan,
     Comment,
     True,
     False,
@@ -144,6 +145,9 @@ pub enum TokenKind {
     Or,
     Newline,
     Question,
+    Colon,
+    LeftBracket,
+    RightBracket,
     LeftParen,
     RightParen,
     Plus,
@@ -178,8 +182,6 @@ impl Display for TokenKind {
                 Self::Ident => "identifier",
                 Self::IntLit => "integer literal",
                 Self::StringLit => "string literal",
-                Self::HalfSpan => "half span",
-                Self::FullSpan => "full span",
                 Self::Comment => "comment literal",
                 Self::True => "true",
                 Self::False => "false",
@@ -188,6 +190,9 @@ impl Display for TokenKind {
                 Self::Or => "or",
                 Self::Newline => "newline",
                 Self::Question => "question mark",
+                Self::Colon => ":",
+                Self::LeftBracket => "[",
+                Self::RightBracket => "]",
                 Self::LeftParen => "(",
                 Self::RightParen => ")",
                 Self::Plus => "+",
@@ -222,8 +227,6 @@ impl From<LogosToken> for TokenKind {
             LogosToken::Ident => Self::Ident,
             LogosToken::IntLit => Self::IntLit,
             LogosToken::StringLit => Self::StringLit,
-            LogosToken::HalfSpan => Self::HalfSpan,
-            LogosToken::FullSpan => Self::FullSpan,
             LogosToken::Comment => Self::Comment,
             LogosToken::True => Self::True,
             LogosToken::False => Self::False,
@@ -232,6 +235,9 @@ impl From<LogosToken> for TokenKind {
             LogosToken::Or => Self::Or,
             LogosToken::Newline => Self::Newline,
             LogosToken::Question => Self::Question,
+            LogosToken::Colon => Self::Colon,
+            LogosToken::LeftBracket => Self::LeftBracket,
+            LogosToken::RightBracket => Self::RightBracket,
             LogosToken::LeftParen => Self::LeftParen,
             LogosToken::RightParen => Self::RightParen,
             LogosToken::Plus => Self::Plus,

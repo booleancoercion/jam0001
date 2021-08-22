@@ -1,6 +1,6 @@
 use crate::lexer::TokenKind;
 
-use super::{Parser, Stmt};
+use super::{HalfSpanLit, NumKind, Parser, SpanLit, Stmt};
 
 type StmtResult = Result<Stmt, String>;
 
@@ -28,21 +28,79 @@ impl Parser<'_> {
         }
     }
 
-    fn parse_set(&mut self) -> StmtResult {
-        self.next().unwrap();
+    fn ident(&mut self) -> Result<String, String> {
         let ident = self.next().unwrap();
-
         if let TokenKind::Ident = ident.kind {
-            let text = self.text(ident);
-            let expr = self.expr()?;
-            self.consume(TokenKind::Newline)?;
-            Ok(Stmt::Set(text.to_string(), expr))
+            Ok(self.text(ident).to_string())
         } else {
             Err(self.fmt_error(
                 ident.span,
                 format!("Expected identifier, got {}", ident.kind),
             ))
         }
+    }
+
+    fn span_num(&mut self) -> Result<HalfSpanLit, String> {
+        let token = self.next().unwrap();
+
+        match token.kind {
+            TokenKind::Minus => {
+                let num = self.next().unwrap();
+                if num.kind != TokenKind::IntLit {
+                    return Err(self.fmt_error(
+                        num.span,
+                        format!("Expected integer literal, got {}", token.kind),
+                    ));
+                }
+                let text = self.text(num);
+                Ok(HalfSpanLit(NumKind::Neg, text.parse().unwrap()))
+            }
+            TokenKind::Plus => {
+                let num = self.next().unwrap();
+                if num.kind != TokenKind::IntLit {
+                    return Err(self.fmt_error(
+                        num.span,
+                        format!("Expected integer literal, got {}", token.kind),
+                    ));
+                }
+                let text = self.text(num);
+                Ok(HalfSpanLit(NumKind::Pos, text.parse().unwrap()))
+            }
+            TokenKind::IntLit => {
+                let text = self.text(token);
+                Ok(HalfSpanLit(NumKind::Abs, text.parse().unwrap()))
+            }
+            _ => Err(self.fmt_error(
+                token.span,
+                format!("Expected +, - or integer literal, got {}", token.kind),
+            )),
+        }
+    }
+
+    fn halfspan(&mut self) -> Result<HalfSpanLit, String> {
+        self.consume(TokenKind::LeftBracket)?;
+        let num = self.span_num()?;
+        self.consume(TokenKind::RightBracket)?;
+        Ok(num)
+    }
+
+    fn span(&mut self) -> Result<SpanLit, String> {
+        self.consume(TokenKind::LeftBracket)?;
+        let num1 = self.span_num()?;
+        self.consume(TokenKind::Colon)?;
+        let num2 = self.span_num()?;
+        self.consume(TokenKind::RightBracket)?;
+
+        Ok(SpanLit(num1, num2))
+    }
+
+    fn parse_set(&mut self) -> StmtResult {
+        self.next().unwrap();
+
+        let text = self.ident()?;
+        let expr = self.expr()?;
+        self.consume(TokenKind::Newline)?;
+        Ok(Stmt::Set(text.to_string(), expr))
     }
 
     fn parse_push(&mut self) -> StmtResult {
@@ -75,5 +133,30 @@ impl Parser<'_> {
     fn parse_commentop(&mut self) -> StmtResult {
         self.next().unwrap();
         let span = self.span()?;
+        self.consume(TokenKind::Newline)?;
+        Ok(Stmt::CommentOp(span))
+    }
+
+    fn parse_uncomment(&mut self) -> StmtResult {
+        self.next().unwrap();
+        let ident = self.ident()?;
+        self.consume(TokenKind::Newline)?;
+        Ok(Stmt::Uncomment(ident))
+    }
+
+    fn parse_copy(&mut self) -> StmtResult {
+        self.next().unwrap();
+        let ident = self.ident()?;
+        let halfspan = self.halfspan()?;
+        self.consume(TokenKind::Newline)?;
+        Ok(Stmt::Copy(ident, halfspan))
+    }
+
+    fn parse_move(&mut self) -> StmtResult {
+        self.next().unwrap();
+        let ident = self.ident()?;
+        let halfspan = self.halfspan()?;
+        self.consume(TokenKind::Newline)?;
+        Ok(Stmt::Move(ident, halfspan))
     }
 }

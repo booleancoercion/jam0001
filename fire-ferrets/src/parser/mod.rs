@@ -72,9 +72,9 @@ pub enum NumKind {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct HalfSpanLit(NumKind, usize);
+pub struct HalfSpanLit(pub NumKind, pub usize);
 #[derive(Copy, Clone, Debug, PartialEq)]
-pub struct SpanLit(HalfSpanLit, HalfSpanLit);
+pub struct SpanLit(pub HalfSpanLit, pub HalfSpanLit);
 
 impl fmt::Display for Lit {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
