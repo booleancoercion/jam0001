@@ -12,7 +12,7 @@ impl Parser<'_> {
             TokenKind::Check => self.parse_check(),
             TokenKind::Pop => self.parse_pop(),
             TokenKind::Print => self.parse_print(),
-            TokenKind::CommentOp => self.parse_comment_op(),
+            TokenKind::CommentOp => self.parse_commentop(),
             TokenKind::Uncomment => self.parse_uncomment(),
             TokenKind::Copy => self.parse_copy(),
             TokenKind::Move => self.parse_move(),
