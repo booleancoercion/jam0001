@@ -35,6 +35,10 @@ pub enum Stmt {
     Check(Expr),
     Pop,
     Print(Expr),
+    CommentOp(SpanLit),
+    Uncomment(String),
+    Copy(String, HalfSpanLit),
+    Move(String, HalfSpanLit),
 }
 
 impl fmt::Display for Stmt {
@@ -59,6 +63,18 @@ pub enum Lit {
     Str(String),
     Bool(bool),
 }
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub enum NumKind {
+    Abs,
+    Neg,
+    Pos,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct HalfSpanLit(NumKind, usize);
+#[derive(Copy, Clone, Debug, PartialEq)]
+pub struct SpanLit(HalfSpanLit, HalfSpanLit);
 
 impl fmt::Display for Lit {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

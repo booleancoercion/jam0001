@@ -31,7 +31,7 @@ uncond_op =     comment
 cond_op =       [ expr ], "?", uncond_op ;
 
 comment =       "comment", span ;
-uncomment =     "uncomment", span ;
+uncomment =     "uncomment", ident ;
 copy =          "copy", ident, halfspan ;
 move =          "move", ident, halfspan ;
 
