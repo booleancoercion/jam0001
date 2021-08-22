@@ -52,6 +52,10 @@ impl fmt::Display for Stmt {
                 Stmt::Check(expr) => format!("(check {}", expr),
                 Stmt::Pop => "(pop)".to_string(),
                 Stmt::Print(expr) => format!("(print {})", expr),
+                Stmt::CommentOp(spanlit) => format!("(comment {})", spanlit),
+                Stmt::Uncomment(ident) => format!("(uncomment {})", ident),
+                Stmt::Copy(ident, halfspanlit) => format!("(copy {} {})", ident, halfspanlit),
+                Stmt::Move(ident, halfspanlit) => format!("(move {} {})", ident, halfspanlit),
             }
         )
     }
@@ -71,10 +75,37 @@ pub enum NumKind {
     Pos,
 }
 
+impl fmt::Display for NumKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Abs => "",
+                Self::Neg => "-",
+                Self::Pos => "+",
+            }
+        )
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct HalfSpanLit(NumKind, usize);
+
+impl fmt::Display for HalfSpanLit {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[{}{}]", self.0, self.1)
+    }
+}
+
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct SpanLit(HalfSpanLit, HalfSpanLit);
+
+impl fmt::Display for SpanLit {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "[{} {}]", self.0, self.1)
+    }
+}
 
 impl fmt::Display for Lit {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
