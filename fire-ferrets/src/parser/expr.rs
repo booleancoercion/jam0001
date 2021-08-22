@@ -143,18 +143,3 @@ impl Parser<'_> {
         self.parse_expr(0)
     }
 }
-
-/// ah yes t e s t i n g
-#[test]
-fn expr_repl() {
-    loop {
-        let mut input = String::new();
-        std::io::stdin().read_line(&mut input).unwrap();
-
-        let expr = Parser::new(&input).expr();
-        match expr {
-            Ok(e) => println!("{}", e),
-            Err(e) => eprintln!("{}", e),
-        }
-    }
-}

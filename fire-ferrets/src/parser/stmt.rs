@@ -67,17 +67,3 @@ impl Parser<'_> {
         Ok(Stmt::Check(expr))
     }
 }
-
-#[test]
-fn stmt_repl() {
-    loop {
-        let mut input = String::new();
-        std::io::stdin().read_line(&mut input).unwrap();
-
-        let stmt = Parser::new(&input).parse_stmt();
-        match stmt {
-            Ok(s) => println!("{}", s),
-            Err(e) => eprintln!("{}", e),
-        }
-    }
-}
