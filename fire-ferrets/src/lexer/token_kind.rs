@@ -12,8 +12,17 @@ pub enum LogosToken {
     #[token("check")]
     Check,
 
-    #[token("cond_copy")]
-    CondCopy,
+    #[token("comment")]
+    CommentOp,
+
+    #[token("uncomment")]
+    Uncomment,
+
+    #[token("copy")]
+    Copy,
+
+    #[token("move")]
+    Move,
 
     #[token("pop")]
     Pop,
@@ -36,6 +45,15 @@ pub enum LogosToken {
     #[regex(r#""((\\"|\\\\)|[^\\"])*""#)]
     StringLit,
 
+    #[regex(r#"\[(\+|-|)[0-9]+\]"#)]
+    HalfSpan,
+
+    #[regex(r#"\[(\+|-|)[0-9]+:(\+|-|)[0-9]+\]"#)]
+    FullSpan,
+
+    #[regex(r#"\{[^\}]*\}"#)]
+    Comment,
+
     #[token("true")]
     True,
 
@@ -54,6 +72,9 @@ pub enum LogosToken {
     #[token("\n")]
     #[token("\r\n")]
     Newline,
+
+    #[token("?")]
+    Question,
 
     #[token("(")]
     LeftParen,
@@ -102,7 +123,10 @@ pub enum LogosToken {
 /// and when we receive `None` from the lexer, turn it into the `Eof` variant
 pub enum TokenKind {
     Check,
-    CondCopy,
+    CommentOp,
+    Uncomment,
+    Copy,
+    Move,
     Pop,
     Print,
     Push,
@@ -110,12 +134,16 @@ pub enum TokenKind {
     Ident,
     IntLit,
     StringLit,
+    HalfSpan,
+    FullSpan,
+    Comment,
     True,
     False,
     And,
     Not,
     Or,
     Newline,
+    Question,
     LeftParen,
     RightParen,
     Plus,
@@ -139,7 +167,10 @@ impl Display for TokenKind {
             "{}",
             match self {
                 Self::Check => "check",
-                Self::CondCopy => "cond_copy",
+                Self::CommentOp => "comment operation",
+                Self::Uncomment => "uncomment",
+                Self::Copy => "copy",
+                Self::Move => "move",
                 Self::Pop => "pop",
                 Self::Print => "print",
                 Self::Push => "push",
@@ -147,12 +178,16 @@ impl Display for TokenKind {
                 Self::Ident => "identifier",
                 Self::IntLit => "integer literal",
                 Self::StringLit => "string literal",
+                Self::HalfSpan => "half span",
+                Self::FullSpan => "full span",
+                Self::Comment => "comment literal",
                 Self::True => "true",
                 Self::False => "false",
                 Self::And => "and",
                 Self::Not => "not",
                 Self::Or => "or",
                 Self::Newline => "newline",
+                Self::Question => "question mark",
                 Self::LeftParen => "(",
                 Self::RightParen => ")",
                 Self::Plus => "+",
@@ -176,7 +211,10 @@ impl From<LogosToken> for TokenKind {
     fn from(logos_token: LogosToken) -> Self {
         match logos_token {
             LogosToken::Check => Self::Check,
-            LogosToken::CondCopy => Self::CondCopy,
+            LogosToken::CommentOp => Self::CommentOp,
+            LogosToken::Uncomment => Self::Uncomment,
+            LogosToken::Copy => Self::Copy,
+            LogosToken::Move => Self::Move,
             LogosToken::Pop => Self::Pop,
             LogosToken::Print => Self::Print,
             LogosToken::Push => Self::Push,
@@ -184,12 +222,16 @@ impl From<LogosToken> for TokenKind {
             LogosToken::Ident => Self::Ident,
             LogosToken::IntLit => Self::IntLit,
             LogosToken::StringLit => Self::StringLit,
+            LogosToken::HalfSpan => Self::HalfSpan,
+            LogosToken::FullSpan => Self::FullSpan,
+            LogosToken::Comment => Self::Comment,
             LogosToken::True => Self::True,
             LogosToken::False => Self::False,
             LogosToken::And => Self::And,
             LogosToken::Not => Self::Not,
             LogosToken::Or => Self::Or,
             LogosToken::Newline => Self::Newline,
+            LogosToken::Question => Self::Question,
             LogosToken::LeftParen => Self::LeftParen,
             LogosToken::RightParen => Self::RightParen,
             LogosToken::Plus => Self::Plus,
